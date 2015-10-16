@@ -1,1 +1,12 @@
-FROM python:3.4-onbuild
+FROM opencv-py27
+
+RUN apt-get update -qq && apt-get install -y --force-yes \
+    libpq-dev
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY requirements.txt /usr/src/app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /usr/src/app
