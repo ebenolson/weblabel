@@ -2,3 +2,5 @@ Django==1.8.1
 gunicorn==19.3.0
 psycopg2==2.6
 redis==2.10.3
+Pillow==3.0.0
+django-jfu==2.0.0

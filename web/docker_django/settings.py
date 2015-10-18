@@ -16,6 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_URL = 'media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 # Quick-start development settings - unsuitable for production
@@ -39,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'jfu',
     # apps
     'docker_django.apps.todo',
 )
@@ -66,6 +68,8 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.request',
+                'django.core.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
