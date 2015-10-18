@@ -1,5 +1,12 @@
 {% extends 'jfu/upload_form.html' %}
 
+            {% block UPLOAD_FORM_BUTTON_BAR_CONTROL %}
+            <button type="submit" class="btn btn-primary start">
+                <i class="glyphicon glyphicon-upload"></i>
+                <span>Start upload</span>
+            </button>
+            {% endblock %}
+
 {% block JS_OPTS %}
 sequentialUploads: true,
 acceptFileTypes: /(\.|\/)(png|gif|jpe?g|tiff?)$/i
