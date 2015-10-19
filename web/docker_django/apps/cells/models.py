@@ -15,7 +15,7 @@ class Image(models.Model):
     date_created = models.DateField(auto_now=True)
 
     def __unicode__(self):
-            return self.name
+        return self.name
 
 
 class Cell(models.Model):
@@ -25,12 +25,15 @@ class Cell(models.Model):
     w = models.IntegerField()
     h = models.IntegerField()
 
+    def __unicode__(self):
+        return u'{} in {}'.format(self.pk, self.image.name)
+
 
 class Label(models.Model):
     name = models.CharField(max_length=100)
 
     def __unicode__(self):
-            return self.name
+        return self.name
 
 
 class LabelSet(models.Model):
@@ -38,7 +41,7 @@ class LabelSet(models.Model):
     labels = models.ManyToManyField(Label)
 
     def __unicode__(self):
-            return self.name
+        return self.name
 
 
 class Annotation(models.Model):
@@ -46,6 +49,10 @@ class Annotation(models.Model):
     label = models.ForeignKey(Label)
     annotator = models.ForeignKey(User)
     date_created = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return u'{} - {} by {}'.format(
+            self.cell.pk, self.label.name, self.annotator.username)
 
 
 class Dataset(models.Model):
@@ -56,4 +63,4 @@ class Dataset(models.Model):
     date_created = models.DateField(auto_now=True)
 
     def __unicode__(self):
-            return self.name
+        return self.name

@@ -2,6 +2,7 @@ import os
 import hashlib
 import cell_capture
 import PIL.Image
+import random
 
 from django.conf import settings
 from django.views import generic
@@ -35,9 +36,10 @@ class Home(LoginRequiredMixin, generic.TemplateView):
             cells = Cell.objects.filter(
                 image__in=obj.images.all)
             obj.numcells = cells.count()
-            obj.completion = cells.annotate(
+            obj.numlabels = cells.annotate(
                 num_annotation=Count('annotation')).filter(
-                num_annotation__gt=0).count() * 100 / obj.numcells
+                num_annotation__gt=0).count()
+            obj.completion = obj.numlabels * 100 / obj.numcells
             return obj
 
         context['datasets'] = (process(obj) for obj in
@@ -54,7 +56,7 @@ def add_label(request, dataset, cell, label):
     annotation = Annotation(label=label, cell=cell, annotator=request.user)
     annotation.save()
     dataset.annotations.add(annotation)
-    return redirect(reverse('label_dataset', kwargs={'dataset':dataset.pk}))
+    return redirect(reverse('label_dataset', kwargs={'dataset': dataset.pk}))
 
 
 class LabelDataset(LoginRequiredMixin, generic.TemplateView):
@@ -66,6 +68,22 @@ class LabelDataset(LoginRequiredMixin, generic.TemplateView):
         dataset = Dataset.objects.get(pk=context['dataset'])
         cells = Cell.objects.filter(
             image__in=dataset.images.all)
+
+        if random.uniform(0, 1) < 0.2:
+            print('filtering')
+            cells = cells.annotate(
+                num_annotation=Count('annotation')).filter(
+                num_annotation__gt=0)
+        else:
+            cells = cells.annotate(
+                num_annotation=Count('annotation')).filter(
+                num_annotation__exact=0)
+
+        print(cells.count())
+        if not cells.count():
+            print('reset qs')
+            cells = Cell.objects.filter(
+                image__in=dataset.images.all)
 
         context['dataset'] = dataset
         context['cell'] = cells.order_by('?').first()
@@ -84,11 +102,15 @@ class UploadImages(LoginRequiredMixin, generic.TemplateView):
 
 @login_required
 def cell_image(request, pk):
+    BORDER = 8
     response = HttpResponse(content_type="image/png")
     try:
         cell = Cell.objects.get(pk=int(pk))
         img = PIL.Image.open(cell.image.image.path)
-        img = img.crop((cell.x, cell.y, cell.x+cell.w, cell.y+cell.h))
+        img = img.crop((cell.x-BORDER,
+                        cell.y-BORDER,
+                        cell.x+cell.w+BORDER,
+                        cell.y+cell.h+BORDER))
     except Image.DoesNotExist:
         img = Image.new('RGB', (32, 32))
 
