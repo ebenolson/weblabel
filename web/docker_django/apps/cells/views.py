@@ -9,8 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
+
 from jfu.http import upload_receive, UploadResponse
-from .models import Image, Cell, Dataset
+
+from .models import Image, Cell, Dataset, Annotation, Label
 
 
 class LoginRequiredMixin(object):
@@ -38,6 +42,34 @@ class Home(LoginRequiredMixin, generic.TemplateView):
 
         context['datasets'] = (process(obj) for obj in
                                Dataset.objects.all())
+        return context
+
+
+@login_required
+def add_label(request, dataset, cell, label):
+    dataset = Dataset.objects.get(pk=dataset)
+    cell = Cell.objects.get(pk=cell)
+    label = Label.objects.get(pk=label)
+
+    annotation = Annotation(label=label, cell=cell, annotator=request.user)
+    annotation.save()
+    dataset.annotations.add(annotation)
+    return redirect(reverse('label_dataset', kwargs={'dataset':dataset.pk}))
+
+
+class LabelDataset(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'add_label.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LabelDataset, self).get_context_data(**kwargs)
+
+        dataset = Dataset.objects.get(pk=context['dataset'])
+        cells = Cell.objects.filter(
+            image__in=dataset.images.all)
+
+        context['dataset'] = dataset
+        context['cell'] = cells.order_by('?').first()
+        context['labels'] = dataset.labelset.labels.all()
         return context
 
 
