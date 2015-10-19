@@ -43,7 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'jfu',
     # apps
-    'docker_django.apps.todo',
+    'docker_django.apps.cells',
 )
 
 MIDDLEWARE_CLASSES = (
