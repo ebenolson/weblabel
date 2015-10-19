@@ -5,6 +5,7 @@ import PIL.Image
 
 from django.conf import settings
 from django.views import generic
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
@@ -12,7 +13,14 @@ from jfu.http import upload_receive, UploadResponse
 from .models import Image, Cell, Dataset
 
 
-class Home(generic.TemplateView):
+class LoginRequiredMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
+
+
+class Home(LoginRequiredMixin, generic.TemplateView):
     template_name = 'dataset_list.html'
 
     def get_context_data(self, **kwargs):
@@ -33,7 +41,7 @@ class Home(generic.TemplateView):
         return context
 
 
-class UploadImages(generic.TemplateView):
+class UploadImages(LoginRequiredMixin, generic.TemplateView):
     template_name = 'uploadimages.html'
 
     def get_context_data(self, **kwargs):
@@ -42,6 +50,7 @@ class UploadImages(generic.TemplateView):
         return context
 
 
+@login_required
 def cell_image(request, pk):
     response = HttpResponse(content_type="image/png")
     try:
@@ -67,6 +76,7 @@ def find_cells(image):
     Cell.objects.bulk_create(insert_list)
 
 
+@login_required
 @require_POST
 def upload(request, pk):
     file = upload_receive(request)

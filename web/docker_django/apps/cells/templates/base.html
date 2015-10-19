@@ -112,7 +112,9 @@ Bootstrap CSS Toolkit styles
             <li><a class="navbar-nav" href="/">{% block NAVBAR_BRAND %}<span class="glyphicon glyphicon-eye-open"></span> RBC Labeling Tool{% endblock %}</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a class="nav navbar-nav navbar-right" href="/admin">Admin Page</a></li>
+            <li><a href="#">Logged in as {{user.username}}</a></li>
+            <li><a href="/accounts/logout?next=/">Log Out</a></li>
+            <li><a href="/admin">Admin Page</a></li>
           </ul>
         </div>
       </div>
