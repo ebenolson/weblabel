@@ -9,18 +9,14 @@ from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from jfu.http import upload_receive, UploadResponse
-from .models import Image, ImageGroup, Cell
+from .models import Image, Cell, Dataset
 
 
 class Home(generic.TemplateView):
-    template_name = 'home.html'
-
-
-class ImageGroups(generic.TemplateView):
-    template_name = 'imagegroups.html'
+    template_name = 'dataset_list.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ImageGroups, self).get_context_data(**kwargs)
+        context = super(Home, self).get_context_data(**kwargs)
 
         def process(obj):
             obj.numimages = obj.images.count
@@ -32,8 +28,8 @@ class ImageGroups(generic.TemplateView):
                 num_annotation__gt=0).count() * 100 / obj.numcells
             return obj
 
-        context['imagegroups'] = (process(obj) for obj in
-                                  ImageGroup.objects.all())
+        context['datasets'] = (process(obj) for obj in
+                               Dataset.objects.all())
         return context
 
 
@@ -97,9 +93,9 @@ def upload(request, pk):
     }
 
     try:
-        imagegroup = ImageGroup.objects.get(pk=int(pk))
-        imagegroup.images.add(instance)
-    except ImageGroup.DoesNotExist:
+        dataset = Dataset.objects.get(pk=int(pk))
+        dataset.images.add(instance)
+    except dataset.DoesNotExist:
         raise
 
     return UploadResponse(request, file_dict)

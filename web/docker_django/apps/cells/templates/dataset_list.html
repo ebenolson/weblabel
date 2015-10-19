@@ -1,11 +1,8 @@
 {% extends "base.html" %}
-
-{% block TITLE %}Image Datasets{% endblock %}
-{% block NAVBAR_BRAND %}Image Datasets{% endblock %}
 {% block MAIN_CONTENT %}
-    <h3>Image Datasets</h3>
+    <h3>Datasets</h3>
     <ul>
-        {% for group in imagegroups %}
+        {% for group in datasets %}
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">Name: {{ group.name }}</h3>
@@ -13,6 +10,7 @@
           <div class="panel-body">
             <ul>
               <li>Created: {{ group.date_created }}</li>
+              <li>Label set: {{ group.date_created }}</li>
               <li>Number of images: {{ group.numimages }}</li>
               <li>Number of cells: {{ group.numcells }}</li>
             </ul>

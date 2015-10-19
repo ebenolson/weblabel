@@ -18,15 +18,6 @@ class Image(models.Model):
             return self.name
 
 
-class ImageGroup(models.Model):
-    name = models.CharField(max_length=100)
-    images = models.ManyToManyField(Image, blank=True)
-    date_created = models.DateField(auto_now=True)
-
-    def __unicode__(self):
-            return self.name
-
-
 class Cell(models.Model):
     image = models.ForeignKey(Image)
     x = models.IntegerField()
@@ -51,7 +42,18 @@ class LabelSet(models.Model):
 
 
 class Annotation(models.Model):
-    cell = models.ManyToManyField(Cell)
+    cell = models.ForeignKey(Cell)
     label = models.ForeignKey(Label)
-    image = models.ForeignKey(User)
+    annotator = models.ForeignKey(User)
     date_created = models.DateField(auto_now=True)
+
+
+class Dataset(models.Model):
+    name = models.CharField(max_length=100)
+    images = models.ManyToManyField(Image, blank=True)
+    annotations = models.ManyToManyField(Annotation, blank=True)
+    labelset = models.ForeignKey(LabelSet)
+    date_created = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+            return self.name
