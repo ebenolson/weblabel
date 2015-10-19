@@ -10,7 +10,7 @@
           <div class="panel-body">
             <ul>
               <li>Created: {{ group.date_created }}</li>
-              <li>Label set: {{ group.date_created }}</li>
+              <li>Label set: {{ group.labelset }}</li>
               <li>Number of images: {{ group.numimages }}</li>
               <li>Number of cells: {{ group.numcells }}</li>
             </ul>
@@ -23,7 +23,8 @@
             </div>                        
           </div>
           <div class="panel-footer">
-            <button type="button" class="btn btn-primary">Start Labeling Session</button>
+            <a href="/addlabel/{{ group.pk }}" class="btn btn-primary">Start Labeling Session</a>
+            <a href="/addimages/{{ group.pk }}" class="btn btn-default">Add images</a>
           </div>
 
         </div>

@@ -91,7 +91,7 @@ Bootstrap CSS Toolkit styles
 
 {% endblock %}
 
-    <title>{% block TITLE %}{% endblock %}</title>
+    <title>{% block TITLE %}RBC Labeling Tool{% endblock %}</title>
     <meta charset="utf-8">
 
     <style>
@@ -107,12 +107,12 @@ Bootstrap CSS Toolkit styles
 
   <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">{% block NAVBAR_BRAND %}{% endblock %}</a>
-        </div>
         <div class="navbar">
+          <ul class="nav navbar-nav">
+            <li><a class="navbar-nav" href="/">{% block NAVBAR_BRAND %}<span class="glyphicon glyphicon-eye-open"></span> RBC Labeling Tool{% endblock %}</a></li>
+          </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a class="nav navbar-nav navbar-right" href="/admin">Admin Tool</a></li>
+            <li><a class="nav navbar-nav navbar-right" href="/admin">Admin Page</a></li>
           </ul>
         </div>
       </div>
