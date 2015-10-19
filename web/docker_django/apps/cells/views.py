@@ -8,11 +8,25 @@ from django.views import generic
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from jfu.http import upload_receive, UploadResponse
-from .models import Image, Cell
+from .models import Image, ImageGroup, Cell
 
 
 class Home(generic.TemplateView):
     template_name = 'home.html'
+
+
+class ImageGroups(generic.TemplateView):
+    template_name = 'imagegroups.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ImageGroups, self).get_context_data(**kwargs)
+
+        def process(obj):
+            obj.numimages = obj.images.count
+            return obj
+
+        context['imagegroups'] = (process(obj) for obj in ImageGroup.objects.all())
+        return context
 
 
 class UploadImages(generic.TemplateView):
@@ -50,9 +64,8 @@ def find_cells(image):
 
 
 @require_POST
-def upload(request):
+def upload(request, pk):
     file = upload_receive(request)
-
     instance = Image(image=file)
 
     instance.name = instance.image.path.split('/')[-1]
@@ -74,5 +87,11 @@ def upload(request):
         'size': file.size,
         'url': settings.MEDIA_URL + basename,
     }
+
+    try:
+        imagegroup = ImageGroup.objects.get(pk=int(pk))
+        imagegroup.images.add(instance)
+    except ImageGroup.DoesNotExist:
+        raise
 
     return UploadResponse(request, file_dict)

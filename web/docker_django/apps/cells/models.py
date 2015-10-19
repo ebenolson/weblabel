@@ -20,7 +20,7 @@ class Image(models.Model):
 
 class ImageGroup(models.Model):
     name = models.CharField(max_length=100)
-    images = models.ManyToManyField(Image)
+    images = models.ManyToManyField(Image, blank=True)
     date_created = models.DateField(auto_now=True)
 
     def __unicode__(self):

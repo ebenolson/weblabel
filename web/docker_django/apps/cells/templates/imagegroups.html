@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block MAIN_CONTENT %}
+    <h2>Publishers</h2>
+    <ul>
+        {% for publisher in imagegroups %}
+            <li>{{ publisher.name }}</li>
+            <li>{{ publisher.numimages }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
