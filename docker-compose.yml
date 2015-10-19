@@ -38,7 +38,7 @@ redis:
     - "6379:6379"
 
 data:
-  restart: no
+  restart: "no"
   image: postgres:latest
   volumes:
     - /var/lib/postgresql
