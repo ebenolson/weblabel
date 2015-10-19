@@ -42,4 +42,5 @@ data:
   image: postgres:latest
   volumes:
     - /var/lib/postgresql
+    - ./backup:/backup
   command: "true"
