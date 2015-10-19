@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 
+{% block TITLE %}Image Datasets{% endblock %}
+{% block NAVBAR_BRAND %}Image Datasets{% endblock %}
 {% block MAIN_CONTENT %}
-    <h2>Publishers</h2>
+    <h3>Image Datasets</h3>
     <ul>
-        {% for publisher in imagegroups %}
-            <li>{{ publisher.name }}</li>
-            <li>{{ publisher.numimages }}</li>
+        {% for group in imagegroups %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Name: {{ group.name }}</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Created: {{ group.date_created }}</li>
+              <li>Number of images: {{ group.numimages }}</li>
+              <li>Number of cells: {{ group.numcells }}</li>
+            </ul>
+            <br>
+            Completion:
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" aria-valuenow="{{ group.completion }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ group.completion }}%;">
+                {{ group.completion }}%
+              </div>
+            </div>                        
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="btn btn-primary">Start Labeling Session</button>
+          </div>
+
+        </div>
+
         {% endfor %}
     </ul>
 {% endblock %}

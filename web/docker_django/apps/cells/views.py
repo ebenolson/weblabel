@@ -5,6 +5,7 @@ import PIL.Image
 
 from django.conf import settings
 from django.views import generic
+from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from jfu.http import upload_receive, UploadResponse
@@ -23,9 +24,16 @@ class ImageGroups(generic.TemplateView):
 
         def process(obj):
             obj.numimages = obj.images.count
+            cells = Cell.objects.filter(
+                image__in=obj.images.all)
+            obj.numcells = cells.count()
+            obj.completion = cells.annotate(
+                num_annotation=Count('annotation')).filter(
+                num_annotation__gt=0).count() * 100 / obj.numcells
             return obj
 
-        context['imagegroups'] = (process(obj) for obj in ImageGroup.objects.all())
+        context['imagegroups'] = (process(obj) for obj in
+                                  ImageGroup.objects.all())
         return context
 
 
