@@ -1,9 +1,15 @@
-## Django Development With Docker Compose and Machine
+# RBC image labeling tool
 
-Featuring:
+### Usage
+* Build images:
+    - `docker build opencv-py27`
+    - `docker-compose build`
+* Start containers and initialize Django database:
+    - `docker-compose up`
+    - `docker exec -it weblabel_web_1 bash`
+        - `python manage.py migrate auth`
+        - `python manage.py createsuperuser`
+        - `python manage.py migrate`
 
-- Docker v1.6.1
-- Docker Compose v1.2.0
-- Docker Machine v0.2.0
-
-Blog post -> https://realpython.com/blog/python/django-development-with-docker-compose-and-machine/
+### Database backup
+* `docker exec -it weblabel_postgres_1 bash /backup/db_backup.sh`
