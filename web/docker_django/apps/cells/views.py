@@ -3,6 +3,8 @@ import hashlib
 import cell_capture
 import PIL.Image
 import random
+import pandas as pd
+import numpy as np
 
 from django.conf import settings
 from django.views import generic
@@ -101,9 +103,39 @@ class UploadImages(LoginRequiredMixin, generic.TemplateView):
 
 
 @login_required
+def dataset_report_download(request, dataset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="dataset.csv"'
+
+    dataset = Dataset.objects.get(pk=dataset)
+    annotations = Annotation.objects.select_related(
+        'cell', 'cell__image', 'label', 'annotator').filter(
+        cell__image__in=dataset.images.all)
+
+    fields = ('pk', 'cell', 'image', 'x', 'y', 'w', 'h', 'label', 'annotator')
+    data = {k: [] for k in fields}
+
+    for annotation in annotations:
+        data['pk'].append(annotation.pk)
+        data['cell'].append(annotation.cell.pk)
+        data['image'].append(annotation.cell.image.name)
+        data['x'].append(annotation.cell.x)
+        data['y'].append(annotation.cell.y)
+        data['w'].append(annotation.cell.w)
+        data['h'].append(annotation.cell.h)
+        data['label'].append(annotation.label.name)
+        data['annotator'].append(annotation.annotator.username)
+
+    df = pd.DataFrame(data)
+    df.to_csv(response)
+    return response
+
+
+@login_required
 def cell_image(request, pk):
+    response = HttpResponse(content_type='image/png')
+
     BORDER = 8
-    response = HttpResponse(content_type="image/png")
     try:
         cell = Cell.objects.get(pk=int(pk))
         img = PIL.Image.open(cell.image.image.path)
