@@ -5,3 +5,4 @@ redis==2.10.3
 Pillow==3.0.0
 django-jfu==2.0.0
 django-admin-bootstrapped==2.4.0
+pandas==0.17.1
