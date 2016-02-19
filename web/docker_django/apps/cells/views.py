@@ -41,7 +41,8 @@ class Home(LoginRequiredMixin, generic.TemplateView):
             obj.numlabels = cells.annotate(
                 num_annotation=Count('annotation')).filter(
                 num_annotation__gt=0).count()
-            obj.completion = obj.numlabels * 100 / obj.numcells
+            obj.completion = (100 * obj.numlabels / obj.numcells
+                              if obj.numcells else 0)
             return obj
 
         context['datasets'] = (process(obj) for obj in
