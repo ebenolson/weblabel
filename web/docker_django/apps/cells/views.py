@@ -5,6 +5,8 @@ import PIL.Image
 import random
 import pandas as pd
 import numpy as np
+import StringIO
+import zipfile
 
 from django.conf import settings
 from django.views import generic
@@ -14,7 +16,6 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-
 from jfu.http import upload_receive, UploadResponse
 
 from .models import Image, Cell, Dataset, Annotation, Label
@@ -129,6 +130,23 @@ def dataset_report_download(request, dataset):
 
     df = pd.DataFrame(data)
     df.to_csv(response)
+    return response
+
+
+@login_required
+def dataset_images_download(request, dataset):
+    buffer = StringIO.StringIO()
+
+    dataset = Dataset.objects.get(pk=dataset)
+
+    z = zipfile.ZipFile(buffer, 'w')
+    for image in dataset.images.all():
+        z.write(image.image.path, os.path.basename(image.image.path))
+    z.close()
+    buffer.seek(0)
+    response = HttpResponse(buffer.read())
+    response['Content-Disposition'] = u'attachment; filename=images.zip'
+    response['Content-Type'] = 'application/x-zip'
     return response
 
 

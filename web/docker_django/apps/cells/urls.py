@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     url(r'addlabel/(?P<dataset>[0-9]+)/(?P<cell>[0-9]+)/(?P<label>[0-9]+)$', views.add_label, name='add_label'),
     url(r'label/(?P<dataset>[0-9]+)/$', views.LabelDataset.as_view(), name='label_dataset'),
     url(r'report/(?P<dataset>[0-9]+)/$', views.dataset_report_download, name='dataset_report'),
+    url(r'images/(?P<dataset>[0-9]+)/$', views.dataset_images_download, name='dataset_images'),
     url(r'cellimage/(?P<pk>[0-9]+)/$', views.cell_image, name='cell_image'),
     url(r'upload/(?P<pk>[0-9]+)/$', views.upload, name='jfu_upload'),
 )
