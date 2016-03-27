@@ -10,9 +10,9 @@
 <div class="row">
   <div class="col-md-2 col-md-offset-0">
     {% for label in labels %}
-    <a href="{% url 'add_label' dataset=dataset.pk cell=cell.pk label=label.pk %}" id="{{ forloop.counter }}" class='btn btn-block btn-primary'>{{ forloop.counter }}. {{ label.name }}</a>
+    <a href="{% url 'add_label' dataset=dataset.pk cell=cell.pk label=label.pk %}" id="{{ forloop.counter }}" class='btn btn-block btn-lg btn-primary'>{{ forloop.counter }}. {{ label.name }}</a>
     {% endfor %}
-    <a href="/" class='btn btn-block btn-success'>End Session</a>
+    <a href="/" class='btn btn-block btn-lg btn-success'>End Session</a>
   </div>
 </div>
 {% endblock %}
