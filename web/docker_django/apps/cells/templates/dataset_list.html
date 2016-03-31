@@ -12,12 +12,11 @@
               <li>Created: {{ group.date_created }}</li>
               <li>Label set: {{ group.labelset }}</li>
               <li>Number of images: {{ group.numimages }}</li>
+              <li>Number of cells labelled: {{ group.numannotations }}</li>
             </ul>
-            <br>
-            Completion:
           </div>
           <div class="panel-footer">
-            <a href="/label/{{ group.pk }}" class="btn btn-primary">Start Labeling Session</a>
+            <a href="/listimages/{{ group.pk }}" class="btn btn-primary">View and annotate images</a>
             <a href="/addimages/{{ group.pk }}" class="btn btn-default">Add images</a>
             <a href="/report/{{ group.pk }}" class="btn btn-default">Download label report</a>
             <a href="/images/{{ group.pk }}" class="btn btn-default">Download image set</a>

@@ -29,18 +29,39 @@ class LoginRequiredMixin(object):
         return login_required(view)
 
 
-class Home(LoginRequiredMixin, generic.TemplateView):
+class DatasetList(LoginRequiredMixin, generic.TemplateView):
     template_name = 'dataset_list.html'
 
     def get_context_data(self, **kwargs):
-        context = super(Home, self).get_context_data(**kwargs)
+        context = super(DatasetList, self).get_context_data(**kwargs)
 
         def process(obj):
             obj.numimages = obj.images.count
+            obj.numannotations = Annotation.objects.filter(dataset=obj).count()
             return obj
 
         context['datasets'] = (process(obj) for obj in
                                Dataset.objects.all())
+        return context
+
+
+class DatasetImageList(LoginRequiredMixin, generic.DetailView):
+    model = Dataset
+    template_name = 'dataset_image_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DatasetImageList, self).get_context_data(**kwargs)
+
+        dataset = context['dataset']
+        images = dataset.images.all()
+
+        def process(obj):
+            obj.numannotations = Annotation.objects.filter(
+                image=obj, dataset=dataset).count()
+            return obj
+
+        context['images'] = (process(obj) for obj in images)
+
         return context
 
 
