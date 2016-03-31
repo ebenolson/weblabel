@@ -12,16 +12,9 @@
               <li>Created: {{ group.date_created }}</li>
               <li>Label set: {{ group.labelset }}</li>
               <li>Number of images: {{ group.numimages }}</li>
-              <li>Number of cells: {{ group.numcells }}</li>
-              <li>Number of labels: {{ group.numlabels }}</li>
             </ul>
             <br>
             Completion:
-            <div class="progress">
-              <div class="progress-bar" role="progressbar" aria-valuenow="{{ group.completion }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ group.completion }}%;">
-                {{ group.completion }}%
-              </div>
-            </div>                        
           </div>
           <div class="panel-footer">
             <a href="/label/{{ group.pk }}" class="btn btn-primary">Start Labeling Session</a>

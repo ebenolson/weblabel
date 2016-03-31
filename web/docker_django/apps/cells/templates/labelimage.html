@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block JS_EXTRA %}
+    <script src="{{ STATIC_URL }}jquery.panzoom.min.js"></script>
+    <script src="{{ STATIC_URL }}jquery.mousewheel.js"></script>
+
+    <script src="{{ STATIC_URL }}svg4everybody.min.js"></script>
+
+    <script src="{{ STATIC_URL }}raphael.min.js"></script>
+    <script src="{{ STATIC_URL }}raphael.icons.min.js"></script>
+    <script src="{{ STATIC_URL }}wheelnav.min.js"></script>
+
+{% endblock %}
+
+{% block CSS_EXTRA %}
+<style>
+    #piemenu > svg { width: 100%; height: 100%; }
+    #piemenu { height: 300px; width: 300px; margin:auto; }
+    [class|=wheelnav-piemenu-title-basic] { fill: #333; stroke: none; }
+    [class|=wheelnav-piemenu-title-selected] { fill: #fff; stroke: none; }
+    [class|=wheelnav-piemenu-title-hover] { fill: #222; stroke: none; cursor: pointer; }
+    [class|=wheelnav-piemenu-title] > tspan { font-family: Impact, Charcoal, sans-serif; font-size: 16px; }
+
+    .crosshair { position: absolute; width: 50px; height: 50px; }
+    .marker { position: absolute; }
+    .marker svg { position: relative; width: 32px; height: 32px; }
+    .premarker { opacity: 0;}
+</style>
+{% endblock %}
+
+{% block MAIN_CONTENT %}
+<div class='piemenu' 
+ data-wheelnav
+ data-wheelnav-slicepath='DonutSlice'
+ data-wheelnav-rotateoff
+ data-wheelnav-navangle='270'
+ data-wheelnav-init
+ style="position:absolute; left: 100px; top: 100px">
+ <div class="wheelnav-slice" data-wheelnav-navitemtext='No label' onmouseup='currentlabel = 0;'></div>
+{% for label in labels %}
+ <div class="wheelnav-slice" data-wheelnav-navitemtext='{{label.name}}' onmouseup='currentlabel = {{label.pk}};'></div>
+{% endfor %}
+</div>
+
+    <div id="container" style="position: relative;">
+        <div class="parent" style="height: 90%; width:100%; background-color: lightgray;">
+            <div class="panzoom">
+                <img src="{{image.image.url}}"></img>
+                {% for obj in annotations %}
+                <div class="marker" data-label={{obj.label.pk}} data-pk={{obj.pk}} data-x={{obj.x}} data-y={{obj.y}}><svg><use xlink:href="{{ STATIC_URL }}map.svg#marker"/></svg></div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        svg4everybody();
+
+var currentlabel = 0;
+
+function setLabel(label) {
+    piemenu.remove();
+    crosshair.remove();
+
+    el = $('.editmarker');
+    el.data('label', label);
+    var color = colorpalette.defaultpalette[el.data('label') % colorpalette.defaultpalette.length];
+    el.css('color', color);
+    el.removeClass('editmarker');
+    el.removeClass('hidden');
+
+    if (el.hasClass('premarker')) {
+        if (label == 0) {
+            el.remove();
+        }
+        else {
+            el.removeClass('premarker');
+            $.post("{% url 'annotation_list' %}",
+                {'image': {{image.pk}},
+                 'annotator': {{user.pk}},
+                 'dataset': {{dataset}},
+                 'label': label,
+                 'x': el.data('x'),
+                 'y': el.data('y')
+                },
+                function(data) {
+                    el.data('pk', data.id);
+                }
+            );
+        }
+    }
+    else {
+        $.ajax({
+            url: "{% url 'annotation_detail' 123 %}".replace('123', el.data('pk')),
+            type: 'DELETE',
+        });            
+        if (label == 0) {
+            el.remove();
+        }
+        else {
+            $.post("{% url 'annotation_list' %}",
+                {'image': {{image.pk}},
+                 'annotator': {{user.pk}},
+                 'dataset': {{dataset}},
+                 'label': label,
+                 'x': el.data('x'),
+                 'y': el.data('y')
+                },
+                function(data) {
+                    el.data('pk', data.id);
+                }
+            );     
+        }
+    }
+
+}
+
+function setEditHandler(el) {
+    el.mousedown(function(e) {
+        if (e.which != 3) return;
+        e.stopPropagation();
+        el.addClass('editmarker');
+        el.css('color', 'lightgray');
+        editMarker(e);
+    });
+}
+
+function editMarker(e) {
+    $('.piemenu').clone().attr('id', 'piemenu').appendTo('.parent');
+    var wheel = new wheelnav('piemenu');
+    wheel.slicePathFunction = slicePath().DonutSlice;
+    wheel.slicePathAttr = {"fill-opacity": 0.85};
+    wheel.sliceHoverAttr = {"fill-opacity": 0.85};
+    wheel.sliceSelectedAttr = {"fill-opacity": 0.85};
+    wheel.titleAttr = {"font-size": "12px", "fill":"black"};
+    wheel.titleSelectedAttr = {"font-size": "14px", "fill":"white"};
+    wheel.titleHoverAttr = {"font-size": "14px", "fill":"white"};
+    wheel.createWheel();
+
+    crosshair = $('<img src="{{ STATIC_URL }}crosshair.svg" class="crosshair"/>').appendTo('.parent');
+    crosshair.css('top', e.pageY - crosshair.width() / 2 - $('.parent').offset().top + 'px');
+    crosshair.css('left', e.pageX - crosshair.height() / 2 - $('.parent').offset().left  + 'px');
+
+    piemenu = $('#piemenu');
+    piemenu.css('top', e.pageY - 150 - $('.parent').offset().top + 'px');
+    piemenu.css('left', e.pageX - 150 - $('.parent').offset().left  + 'px');
+
+    $('.parent').mouseup(function(e) {
+        setLabel(currentlabel);
+        $(this).unbind('mouseup');
+    });
+}
+
+window.onload = function () {
+
+    $('.marker').each(function() { 
+        var el = $(this);
+        el.css('left', el.data('x') - el.width() / 2); 
+        el.css('top', el.data('y') - el.height() / 2);
+        var color = colorpalette.defaultpalette[el.data('label') % colorpalette.defaultpalette.length];
+        el.css('color', color);
+        setEditHandler(el);
+    });
+
+    $('.parent').bind("contextmenu", function(e) {
+                    e.preventDefault();
+                });
+
+    $('.parent').mousedown(function(e) //Right click
+    {
+        if (e.which != 3) return;
+
+        el = $('<div class="marker premarker editmarker"><svg><use xlink:href="{{ STATIC_URL }}map.svg#marker"/></svg></div>').appendTo($('.panzoom'));
+        el.data('x', e.offsetX);
+        el.data('y', e.offsetY);
+        el.css('left', el.data('x') - el.width() / 2); 
+        el.css('top', el.data('y') - el.height() / 2);
+        setEditHandler(el);
+        editMarker(e);
+    });    
+
+    var $panzoom = $('.panzoom').panzoom( {
+      minScale: 0.1,
+      maxScale: 2,
+    });
+    $panzoom.panzoom('zoom', 0, {
+    increment: 1,
+    focal: {
+      clientX: $('.parent').width()/2,
+      clientY: $('.parent').height()/2
+    }
+    });      
+    $panzoom.parent().on('mousewheel.focal', function( e ) {
+    e.preventDefault();
+    var delta = e.delta || e.originalEvent.wheelDelta;
+    var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+    $panzoom.panzoom('zoom', zoomOut, {
+      increment: 0.1,
+      animate: false,
+      focal: e
+    });
+    });
+};
+    </script>
+{% endblock %}

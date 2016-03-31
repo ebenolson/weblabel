@@ -17,6 +17,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from jfu.http import upload_receive, UploadResponse
+from restless.modelviews import ListEndpoint, DetailEndpoint
 
 from .models import Image, Cell, Dataset, Annotation, Label
 
@@ -36,19 +37,19 @@ class Home(LoginRequiredMixin, generic.TemplateView):
 
         def process(obj):
             obj.numimages = obj.images.count
-            cells = Cell.objects.filter(
-                image__in=obj.images.all)
-            obj.numcells = cells.count()
-            obj.numlabels = cells.annotate(
-                num_annotation=Count('annotation')).filter(
-                num_annotation__gt=0).count()
-            obj.completion = (100 * obj.numlabels / obj.numcells
-                              if obj.numcells else 0)
             return obj
 
         context['datasets'] = (process(obj) for obj in
                                Dataset.objects.all())
         return context
+
+
+class AnnotationList(LoginRequiredMixin, ListEndpoint):
+    model = Annotation
+
+
+class AnnotationDetail(LoginRequiredMixin, DetailEndpoint):
+    model = Annotation
 
 
 @login_required
@@ -101,6 +102,35 @@ class UploadImages(LoginRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UploadImages, self).get_context_data(**kwargs)
         context['accepted_mime_types'] = ['image/*']
+        return context
+
+
+class LabelImage(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'labelimage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LabelImage, self).get_context_data(**kwargs)
+        dataset = Dataset.objects.get(pk=int(context['dataset']))
+        image = Image.objects.get(pk=int(context['image']))
+        context['image'] = image
+
+        annotations = Annotation.objects.filter(image=image, dataset=dataset)
+        context['annotations'] = annotations
+
+        context['labels'] = dataset.labelset.labels.all()
+        return context
+
+
+class ViewImage(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'viewimage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewImage, self).get_context_data(**kwargs)
+        image = Image.objects.get(pk=int(context['pk']))
+        context['image'] = image
+
+        cells = Cell.objects.filter(image=image)
+        context['cells'] = cells
         return context
 
 

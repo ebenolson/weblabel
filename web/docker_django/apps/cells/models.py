@@ -11,7 +11,7 @@ class Item(models.Model):
 class Image(models.Model):
     name = models.CharField(max_length=100)
     sha1 = models.CharField(max_length=100)
-    image = models.ImageField(upload_to=MEDIA_ROOT)
+    image = models.ImageField(upload_to='')
     date_created = models.DateField(auto_now=True)
 
     def __unicode__(self):
@@ -44,8 +44,21 @@ class LabelSet(models.Model):
         return self.name
 
 
+class Dataset(models.Model):
+    name = models.CharField(max_length=100)
+    images = models.ManyToManyField(Image, blank=True)
+    labelset = models.ForeignKey(LabelSet)
+    date_created = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Annotation(models.Model):
-    cell = models.ForeignKey(Cell)
+    dataset = models.ForeignKey(Dataset)
+    image = models.ForeignKey(Image)
+    x = models.IntegerField()
+    y = models.IntegerField()
     label = models.ForeignKey(Label)
     annotator = models.ForeignKey(User)
     date_created = models.DateField(auto_now=True)
@@ -53,14 +66,3 @@ class Annotation(models.Model):
     def __unicode__(self):
         return u'{} - {} by {}'.format(
             self.cell.pk, self.label.name, self.annotator.username)
-
-
-class Dataset(models.Model):
-    name = models.CharField(max_length=100)
-    images = models.ManyToManyField(Image, blank=True)
-    annotations = models.ManyToManyField(Annotation, blank=True)
-    labelset = models.ForeignKey(LabelSet)
-    date_created = models.DateField(auto_now=True)
-
-    def __unicode__(self):
-        return self.name
