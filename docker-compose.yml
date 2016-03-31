@@ -1,11 +1,9 @@
 web:
   restart: always
   build: ./web
-  expose:
-    - "8000"
   links:
-    - postgres:postgres
-    - redis:redis
+    - postgres
+    - redis
   volumes:
     - ./web:/usr/src/app/
   env_file: .env
@@ -28,14 +26,10 @@ postgres:
   image: postgres:latest
   volumes_from:
     - data
-  ports:
-    - "5432:5432"
 
 redis:
   restart: always
   image: redis:latest
-  ports:
-    - "6379:6379"
 
 data:
   restart: "no"
