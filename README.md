@@ -10,6 +10,7 @@
         - `python manage.py migrate auth`
         - `python manage.py createsuperuser`
         - `python manage.py migrate`
+        - `python manage.py collectstatic`
 
 ### Database backup
 * `docker exec -it weblabel_postgres_1 bash /backup/db_backup.sh`
