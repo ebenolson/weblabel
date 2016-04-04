@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block MAIN_CONTENT %}
+    <h3>Images in dataset</h3>
+    <ul>
+        {% for obj in images %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Name: {{obj.name }}</h3>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <li>Created: {{ obj.date_created }}</li>
+              <li>Number of cells labelled: {{ obj.numannotations }}</li>
+            </ul>
+          </div>
+          <div><img src="{{obj.image.url}}" style="width:30%; padding: 10pt"/></div>
+          <div class="panel-footer">
+            <a href="{% url 'label_image' dataset.pk obj.pk %}" class="btn btn-primary">Annotate image</a>
+          </div>
+        </div>
+        {% endfor %}
+    </ul>
+{% endblock %}
