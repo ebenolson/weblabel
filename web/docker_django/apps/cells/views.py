@@ -135,7 +135,9 @@ class LabelImage(LoginRequiredMixin, generic.TemplateView):
         image = Image.objects.get(pk=int(context['image']))
         context['image'] = image
 
-        annotations = Annotation.objects.filter(image=image, dataset=dataset)
+        annotations = Annotation.objects.filter(image=image,
+                                                dataset=dataset,
+                                                annotator=self.request.user)
         context['annotations'] = annotations
 
         context['labels'] = dataset.labelset.labels.all()
