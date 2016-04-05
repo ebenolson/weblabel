@@ -56,7 +56,8 @@
         svg4everybody();
 
 var currentlabel = 0;
-var palette = new Array('#7f8c8d', '#c0392b', '#f39c12', '#f1c40f', '#2ecc71', '#16a085', '#2980b9', '#2c3e50', '#8e44ad', '#e74c3c');
+var colors = new Array('#7f8c8d', '#c0392b', '#f39c12', '#f1c40f', '#2ecc71', '#16a085', '#2980b9', '#2c3e50', '#8e44ad', '#e74c3c');
+var palette = { {% for label in labels %} {{label.pk}}: colors[{{forloop.counter}} % colors.length], {% endfor %} };
 
 function setLabel(label) {
     piemenu.remove();
@@ -64,7 +65,7 @@ function setLabel(label) {
 
     el = $('.editmarker');
     el.data('label', label);
-    var color = palette[el.data('label') % palette.length];
+    var color = palette[el.data('label')];
     el.css('color', color);
     el.removeClass('editmarker');
     el.removeClass('hidden');
@@ -135,7 +136,7 @@ function editMarker(e) {
     wheel.titleAttr = {"font-size": "12px", "fill":"black"};
     wheel.titleSelectedAttr = {"font-size": "14px", "fill":"white"};
     wheel.titleHoverAttr = {"font-size": "14px", "fill":"white"};
-    wheel.colors = palette;
+    wheel.colors = colors;
     wheel.initWheel(wheel.titles);
     wheel.createWheel();
 
@@ -159,7 +160,7 @@ window.onload = function () {
         var el = $(this);
         el.css('left', el.data('x') - el.width() / 2); 
         el.css('top', el.data('y') - el.height() / 2);
-        var color = palette[el.data('label') % palette.length];
+        var color = palette[el.data('label')];
         el.css('color', color);
         setEditHandler(el);
     });
