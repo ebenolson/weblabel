@@ -159,7 +159,7 @@ window.onload = function () {
         var el = $(this);
         el.css('left', el.data('x') - el.width() / 2); 
         el.css('top', el.data('y') - el.height() / 2);
-        var color = colorpalette.defaultpalette[el.data('label') % colorpalette.defaultpalette.length];
+        var color = palette[el.data('label') % palette.length];
         el.css('color', color);
         setEditHandler(el);
     });
