@@ -64,5 +64,5 @@ class Annotation(models.Model):
     date_created = models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return u'{} - {} by {}'.format(
-            self.cell.pk, self.label.name, self.annotator.username)
+        return u'image {} in dataset {} ({}, {}) - {} by {}'.format(
+            self.image.pk, self.dataset.pk, self.x, self.y, self.label.name, self.annotator.username)
