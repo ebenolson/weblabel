@@ -13,6 +13,13 @@
               <li>Label set: {{ group.labelset }}</li>
               <li>Number of images: {{ group.numimages }}</li>
               <li>Number of cells labelled: {{ group.numannotations }}</li>
+              <li>Label counts:
+                <ul>
+                  {% for label, count in group.labelcounts.items %}
+                    <li>{{label}}: {{count}}</li>
+                  {% endfor %}
+                </ul>
+              </li>
             </ul>
           </div>
           <div class="panel-footer">

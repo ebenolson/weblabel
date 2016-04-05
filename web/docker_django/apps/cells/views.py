@@ -38,6 +38,10 @@ class DatasetList(LoginRequiredMixin, generic.TemplateView):
         def process(obj):
             obj.numimages = obj.images.count
             obj.numannotations = Annotation.objects.filter(dataset=obj).count()
+            obj.labelcounts = {}
+            for label in obj.labelset.labels.all():
+                obj.labelcounts[label.name] = Annotation.objects.filter(
+                    dataset=obj, label=label).count()
             return obj
 
         context['datasets'] = (process(obj) for obj in
