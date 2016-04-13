@@ -168,20 +168,17 @@ def dataset_report_download(request, dataset):
 
     dataset = Dataset.objects.get(pk=dataset)
     annotations = Annotation.objects.select_related(
-        'cell', 'cell__image', 'label', 'annotator').filter(
-        cell__image__in=dataset.images.all)
+        'image', 'label', 'annotator').filter(
+        image__in=dataset.images.all)
 
-    fields = ('pk', 'cell', 'image', 'x', 'y', 'w', 'h', 'label', 'annotator')
+    fields = ('pk', 'image', 'x', 'y', 'label', 'annotator')
     data = {k: [] for k in fields}
 
     for annotation in annotations:
         data['pk'].append(annotation.pk)
-        data['cell'].append(annotation.cell.pk)
-        data['image'].append(annotation.cell.image.name)
-        data['x'].append(annotation.cell.x)
-        data['y'].append(annotation.cell.y)
-        data['w'].append(annotation.cell.w)
-        data['h'].append(annotation.cell.h)
+        data['image'].append(annotation.image.name)
+        data['x'].append(annotation.x)
+        data['y'].append(annotation.y)
         data['label'].append(annotation.label.name)
         data['annotator'].append(annotation.annotator.username)
 
