@@ -169,7 +169,7 @@ def dataset_report_download(request, dataset):
     dataset = Dataset.objects.get(pk=dataset)
     annotations = Annotation.objects.select_related(
         'image', 'label', 'annotator').filter(
-        image__in=dataset.images.all)
+        dataset=dataset)
 
     fields = ('pk', 'image', 'x', 'y', 'label', 'annotator')
     data = {k: [] for k in fields}
