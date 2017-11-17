@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from docker_django.settings import MEDIA_ROOT
 
 
 class Item(models.Model):
@@ -16,17 +15,6 @@ class Image(models.Model):
 
     def __unicode__(self):
         return self.name
-
-
-class Cell(models.Model):
-    image = models.ForeignKey(Image)
-    x = models.IntegerField()
-    y = models.IntegerField()
-    w = models.IntegerField()
-    h = models.IntegerField()
-
-    def __unicode__(self):
-        return u'{} in {}'.format(self.pk, self.image.name)
 
 
 class Label(models.Model):

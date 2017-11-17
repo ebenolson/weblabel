@@ -1,10 +1,8 @@
 import os
 import hashlib
-import cell_capture
 import PIL.Image
 import random
 import pandas as pd
-import numpy as np
 import StringIO
 import zipfile
 
@@ -19,7 +17,7 @@ from django.core.urlresolvers import reverse
 from jfu.http import upload_receive, UploadResponse
 from restless.modelviews import ListEndpoint, DetailEndpoint
 
-from .models import Image, Cell, Dataset, Annotation, Label
+from .models import Image, Dataset, Annotation
 
 
 class LoginRequiredMixin(object):
@@ -77,50 +75,6 @@ class AnnotationDetail(LoginRequiredMixin, DetailEndpoint):
     model = Annotation
 
 
-@login_required
-def add_label(request, dataset, cell, label):
-    dataset = Dataset.objects.get(pk=dataset)
-    cell = Cell.objects.get(pk=cell)
-    label = Label.objects.get(pk=label)
-
-    annotation = Annotation(label=label, cell=cell, annotator=request.user)
-    annotation.save()
-    dataset.annotations.add(annotation)
-    return redirect(reverse('label_dataset', kwargs={'dataset': dataset.pk}))
-
-
-class LabelDataset(LoginRequiredMixin, generic.TemplateView):
-    template_name = 'add_label.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(LabelDataset, self).get_context_data(**kwargs)
-
-        dataset = Dataset.objects.get(pk=context['dataset'])
-        cells = Cell.objects.filter(
-            image__in=dataset.images.all)
-
-        if random.uniform(0, 1) < 0.2:
-            print('filtering')
-            cells = cells.annotate(
-                num_annotation=Count('annotation')).filter(
-                num_annotation__gt=0)
-        else:
-            cells = cells.annotate(
-                num_annotation=Count('annotation')).filter(
-                num_annotation__exact=0)
-
-        print(cells.count())
-        if not cells.count():
-            print('reset qs')
-            cells = Cell.objects.filter(
-                image__in=dataset.images.all)
-
-        context['dataset'] = dataset
-        context['cell'] = cells.order_by('?').first()
-        context['labels'] = dataset.labelset.labels.all()
-        return context
-
-
 class UploadImages(LoginRequiredMixin, generic.TemplateView):
     template_name = 'uploadimages.html'
 
@@ -156,8 +110,6 @@ class ViewImage(LoginRequiredMixin, generic.TemplateView):
         image = Image.objects.get(pk=int(context['pk']))
         context['image'] = image
 
-        cells = Cell.objects.filter(image=image)
-        context['cells'] = cells
         return context
 
 
@@ -205,37 +157,6 @@ def dataset_images_download(request, dataset):
 
 
 @login_required
-def cell_image(request, pk):
-    response = HttpResponse(content_type='image/png')
-
-    BORDER = 8
-    try:
-        cell = Cell.objects.get(pk=int(pk))
-        img = PIL.Image.open(cell.image.image.path)
-        img = img.crop((cell.x-BORDER,
-                        cell.y-BORDER,
-                        cell.x+cell.w+BORDER,
-                        cell.y+cell.h+BORDER))
-    except Image.DoesNotExist:
-        img = Image.new('RGB', (32, 32))
-
-    img.save(response, 'png')
-    return response
-
-
-def find_cells(image):
-    filename = image.image.path
-
-    cells = cell_capture.rbc_capture(filename)
-
-    insert_list = []
-    for x, y, w, h in cells:
-        insert_list.append(Cell(image=image, x=x, y=y, w=w, h=h))
-
-    Cell.objects.bulk_create(insert_list)
-
-
-@login_required
 @require_POST
 def upload(request, pk):
     file = upload_receive(request)
@@ -252,8 +173,6 @@ def upload(request, pk):
     instance.save()
 
     basename = os.path.basename(instance.image.path)
-
-    find_cells(instance)
 
     file_dict = {
         'name': basename,
