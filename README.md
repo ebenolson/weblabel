@@ -1,6 +1,7 @@
 # RBC image labeling tool
 
 ### Usage
+* Update `SECRET_KEY` in `.env`
 * Build images:
     - `docker-compose build`
 * Start containers and initialize Django database:
